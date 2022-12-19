@@ -1,0 +1,18 @@
+Queries
+
+1.- data> db.companies.updateMany({name: "VistaGen Therapeutics"}, {$set:{email_address: "javier.garcia.cespedes@alumnos.upm.es"}})
+2.- data> db.companies.updateMany({name: "VistaGen Therapeutics"}, {$set:{owners: [{nombre: "Javier Garcia Cespedes", token: "b163996cf56202ae71b81430fbc1fa11"}]}})
+3.- data> db.companies.updateMany({founded_year: {$gte: 2012}}, {$set:{uptodate:true}})
+4.- data> db.companies.updateMany({name: "Fixya"},{$unset: {twitter_username: ""}})
+5.- data> db.companies.deleteOne({$and:[{founded_year: 2009},{founded_month: 4}, {founded_day: 21}]})
+6.-
+    6a.- data> db.companies.find({number_of_employees: {$gt: 100}}).count() -> 16
+    6b.- data> db.companies.find({offices: {$size: 2}}).count() -> 33
+    6c.- data> db.companies.find({"milestones.stoned_year": 2012}).count() -> 10
+    6d.- data> db.companies.find({"opening_date" : {"$gt": new ISODate("2020-01-01")}}).count() -> 89
+db.results.insertOne({_id: 1,email: "javier.garcia.cespedes@alumnos.upm.es",results: {mas_empleados: 16,dos_oficinas: 33,m_2012: 10,recientes: 89}})
+7.- db.companies.updateMany({name: "FoodCare"}, {$push: {products: {name: "Future Edition", permalink: "future-edition"}}})
+8.- db.companies.updateMany({name: "FoodCare"},{$set: {"products.1.name": "Company Edition"}})
+9.- db.companies.updateMany({name: "CircleUp"}, {$pull: {relationships: {is_past: true}}})
+10.- db.companies.updateMany({name: "Gimigo"}, {$set: {phone_number: "2065382800"}})
+     db.companies.updateMany({name: "Gimigo"},[{ $set: { phone_number: { $toInt: "$phone_number" } } }])
