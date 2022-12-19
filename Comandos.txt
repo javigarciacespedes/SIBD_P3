@@ -1,18 +1,32 @@
 Queries
 
-1.- data> db.companies.updateMany({name: "VistaGen Therapeutics"}, {$set:{email_address: "javier.garcia.cespedes@alumnos.upm.es"}})
-2.- data> db.companies.updateMany({name: "VistaGen Therapeutics"}, {$set:{owners: [{nombre: "Javier Garcia Cespedes", token: "b163996cf56202ae71b81430fbc1fa11"}]}})
-3.- data> db.companies.updateMany({founded_year: {$gte: 2012}}, {$set:{uptodate:true}})
-4.- data> db.companies.updateMany({name: "Fixya"},{$unset: {twitter_username: ""}})
-5.- data> db.companies.deleteOne({$and:[{founded_year: 2009},{founded_month: 4}, {founded_day: 21}]})
+1.- db.blood.aggregate([{$match: {eye: "Gray"}},{$group: {_id: "$eye",mediagrises: {$avg:"$hemograma.Plaquetas"}}}])
+db.partials.insertOne({mediagrises: 275391.558018018})
+2.- db.blood.find({"bioquimica.HDL_LDL.0": {$lt: 43}}).count()
+db.partials.insertOne({HDLbajo:3634})
+3.- db.blood.aggregate([{ $match: { height: { $gt: 208 } } }, { $group: { _id: "$height",minHierro: { $min: "$bioquimica.Hierro" } } }])
+db.partials.insertOne({MinHierro: 62.6625})
+4.- db.blood.aggregate([{ $unwind: "$muestras_SPO2" }, { $group: { _id: "$muestras_SPO2",count:{$sum:1} } }])
+    [
+      { _id: 99, count: 108025 },
+      { _id: 98, count: 107633 },
+      { _id: 96, count: 107580 },
+      { _id: 97, count: 108194 },
+      { _id: 95, count: 108256 }
+    ]
+
+db.partials.insertOne({muestras: [95,97]})
+5.-
+db.blood.aggregate([
+    {$project:{"hemograma.hto": {$replaceAll:{input:"$hemograma.hto",find:"%",replacement:""}}}},
+    {$addFields:{convertedPercentage:{$toDecimal:"$hemograma.hto"}}},
+    {$match:{convertedPercentage:{$lt:42.00}}},
+    {$group:{_id:"convertedPercentage",count:{$sum:1}}}
+])
+db.partials.insertOne({hematocritos:14940})
+
 6.-
-    6a.- data> db.companies.find({number_of_employees: {$gt: 100}}).count() -> 16
-    6b.- data> db.companies.find({offices: {$size: 2}}).count() -> 33
-    6c.- data> db.companies.find({"milestones.stoned_year": 2012}).count() -> 10
-    6d.- data> db.companies.find({"opening_date" : {"$gt": new ISODate("2020-01-01")}}).count() -> 89
-db.results.insertOne({_id: 1,email: "javier.garcia.cespedes@alumnos.upm.es",results: {mas_empleados: 16,dos_oficinas: 33,m_2012: 10,recientes: 89}})
-7.- db.companies.updateMany({name: "FoodCare"}, {$push: {products: {name: "Future Edition", permalink: "future-edition"}}})
-8.- db.companies.updateMany({name: "FoodCare"},{$set: {"products.1.name": "Company Edition"}})
-9.- db.companies.updateMany({name: "CircleUp"}, {$pull: {relationships: {is_past: true}}})
-10.- db.companies.updateMany({name: "Gimigo"}, {$set: {phone_number: "2065382800"}})
-     db.companies.updateMany({name: "Gimigo"},[{ $set: { phone_number: { $toInt: "$phone_number" } } }])
+db.blood.aggregate([
+{ $match: { "hemograma.Plaquetas": { $lt: 275391.558018018 }, "bioquimica.HDL_LDL.0": { $lt: 43 }, "bioquimica.Hierro": { $gt: 62.6625 }, "hemograma.hto": { $lt: "42%" }, "muestras_SPO2": { $in: [95, 97] } } }, { $project: { name: "$name", email: { $concat: ["$email_u", "@", "$email_d"] } } },
+{$out: {db:"samples",coll:"results"}}
+])
